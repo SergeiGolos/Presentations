@@ -8,20 +8,36 @@ angular.module('dynProxy')
     var interceptors  = [];
     var hooks = [];
     
-    function registerHook () {
+    function _register() {
       for (var key in arguments) {
         var hook = $injector.get(arguments[key]);        
         hooks.push(hook);   
       }
     }
 
-    function createClassProxy (type) {                  
-      var response = {};
-      for (var i = 1; i < arguments.length; i++) {        
+    function _process(args, offset) {
+      for (var key in arguments) {
+        var injected = $injector.get(arguments[key]);        
         
-        var intercepter = $injector.get(arguments[i]);
-        interceptors .push(intercepter);       
-      }
+        var processors = {
+          'hook' : function (item) {
+
+            // add some validation;
+            hooks.push(item);   
+          },
+          'intercept' : function(item) {
+            interceptors.push(item)
+          }
+        };
+
+
+      } 
+    }
+
+    function _create(type) {                  
+      var response = {};
+      
+      
 
       var object = $injector.get(type);           
       var registredInterceptors = interceptors ;
@@ -54,8 +70,8 @@ angular.module('dynProxy')
     }
 
     return {
-      CreateClassProxy : createClassProxy,
-      RegisterHook : registerHook
+      create : _create,
+      register : _register
     };
   }]);
 
